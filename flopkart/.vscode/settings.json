@@ -1,0 +1,10 @@
+{
+    "java.configuration.updateBuildConfiguration": "interactive",
+    // "java.home": "C:\\Program Files\\Java\\jdk-15.0.1",
+
+    "terminal.integrated.shell.windows": "cmd.exe",
+    "terminal.integrated.shellArgs.windows": [
+      "/K",
+      "C:\\Users\\com\\Desktop\\apps\\cmder\\vendor\\bin\\vscode_init.cmd"
+    ],
+}
