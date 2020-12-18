@@ -4,7 +4,7 @@ INSERT INTO category VALUES(3, 'Smartphones');
 
 INSERT INTO product VALUES(1, "Lenovo Legion", 
     "The new Lenovo Legion comes packed with the state-of-the-art processors from Intel and AMD. Combined with the latest graphics from NVIDIA and a 16GB DDR4 memory, it can handle even the heaviest of workloads. And yes, it can run Crysis.", 
-    1, 139999, "products/1/lenovo-legion.jpg", "Free shipping till 25th December.", 0, 0);
+    1, 139999, "products/1/lenovo-legion.jpeg", "Free shipping till 25th December.", 0, 0);
 INSERT INTO product VALUES(2, "Samsung Smart TV", 
     "The new Lenovo Legion comes packed with the state-of-the-art processors from Intel and AMD. Combined with the latest graphics from NVIDIA and a 16GB DDR4 memory, it can handle even the heaviest of workloads. And yes, it can run Crysis.", 
     2, 39990, "products/2/samsung-smart-tv.png", "Free shipping till 25th December.", 0, 0);
