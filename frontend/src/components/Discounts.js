@@ -1,0 +1,118 @@
+import React from "react";
+import { Link } from "react-router-dom";
+import SETTINGS from "../settings";
+
+const { useEffect, useState } = React;
+
+function DiscountCard(props) {
+  const {
+    id,
+    imageUrl,
+    name,
+    price,
+    discountPercentage,
+    reducedPrice,
+    description,
+    footnote,
+  } = props;
+
+  return (
+    <div className="p-2 bg-white border-r-2 last:border-r-0">
+      <div className="">
+        <img
+          src={`${SETTINGS.STATIC_ROOT_URL}/${imageUrl}`}
+          alt={name}
+          className="rounded-lg h-60 ml-auto mr-auto"
+        />
+      </div>
+      <div className="flex justify-between mt-1">
+        <div className="font-semibold text-xl">{name}</div>
+        <div className="text-xl text-gray-500 font-medium">
+          ₹ {reducedPrice.toLocaleString("en-IN")}
+        </div>
+      </div>
+      <div className="flex justify-between">
+        <div className="text-sm font-semibold bg-green-300 rounded-sm p-0.5">
+          {discountPercentage}% off
+        </div>
+        <div className="text-sm text-gray-500 p-0.5">
+          <s>₹ {price.toLocaleString("en-IN")}</s>
+        </div>
+      </div>
+      <div className="text-gray-700 text-sm mt-4">{description}</div>
+      <div className="flex mt-4 mb-4">
+        <Link
+          to={`/products/${id}`}
+          className="rounded-md p-1 border-2 border-blue-200 mr-4 bg-blue-200 hover:bg-blue-500 hover:border-blue-500 hover:text-white font-medium"
+        >
+          View details
+        </Link>
+        <Link
+          to="/"
+          className="rounded-md p-1 border-2 border-blue-500 hover:bg-blue-500 hover:text-white font-medium"
+        >
+          Add to cart
+        </Link>
+      </div>
+      <div className="text-sm text-gray-500">{footnote}</div>
+    </div>
+  );
+}
+
+async function fetchDiscountedProducts(setDiscountedProducts) {
+  // const discountedProduct = {
+  //   id: 1,
+  //   name: "Lenovo Legion",
+  //   imageUrl: process.env.PUBLIC_URL + "/images/lenovo-legion.jpg",
+  //   price: 139999,
+  //   discountPercentage: 50,
+  //   reducedPrice: 69999,
+  //   description:
+  //     "The new Lenovo Legion comes packed with the state-of-the-art processors from Intel and AMD. Combined with the latest graphics from NVIDIA and a 16GB DDR4 memory, it can handle even the heaviest of workloads. And yes, it can run Crysis.",
+  //   footnote: "Free shipping till 25th December",
+  // };
+  // const discountedProducts = [
+  //   discountedProduct,
+  //   { ...discountedProduct, id: 2 },
+  //   { ...discountedProduct, id: 3 },
+  // ];
+
+  const productsRaw = await fetch(
+    `${SETTINGS.BASE_URL}/c/products?action=list`
+  );
+  const products = await productsRaw.json();
+  const discountedProducts = products.filter(
+    (product) => product.discountPercentage
+  );
+
+  setDiscountedProducts(discountedProducts);
+}
+
+function Discounts() {
+  const [discountedProducts, setDiscountedProducts] = useState(null);
+
+  useEffect(() => {
+    fetchDiscountedProducts(setDiscountedProducts);
+  }, []);
+
+  if (!discountedProducts) {
+    return <div></div>;
+  }
+
+  return (
+    <div className="py-2 px-4 max-w-full">
+      <div className="text-3xl mb-2">
+        <span className="border-b-2 border-blue-600">Deals</span> of the day
+      </div>
+      <div>
+        <div className="flex flex-row justify-evenly">
+          {discountedProducts.map((discountedProduct) => (
+            <DiscountCard key={discountedProduct.id} {...discountedProduct} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Discounts;
