@@ -1,11 +1,17 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { useSessionStorage } from "../sessionStorage";
 import SETTINGS from "../settings";
 
 const { useEffect, useState } = React;
 
 function ProductDetailCard(props) {
+  const [cart, setCart] = useSessionStorage("cart", {
+    addedProductIds: {},
+    products: [],
+  });
+
   const {
     id,
     imageUrl,
@@ -17,7 +23,16 @@ function ProductDetailCard(props) {
     reducedPrice,
     category,
     footnote,
-  } = props;
+  } = props.product;
+
+  const handleAddToCart = () => {
+    if (!cart.addedProductIds[id]) {
+      const cartCopy = { ...cart };
+      cartCopy.addedProductIds[id] = true;
+      cartCopy.products.push(props.product);
+      setCart(cartCopy);
+    }
+  };
 
   const renderPriceSection = () => {
     if (discountPercentage) {
@@ -85,12 +100,12 @@ function ProductDetailCard(props) {
         {renderCategorySection()}
         <div className="text-gray-700 text-sm mt-4">{description}</div>
         <div className="flex mt-4 mb-4">
-          <Link
-            to="/"
+          <button
+            onClick={() => handleAddToCart()}
             className="rounded-md p-1 border-2 border-blue-500 hover:bg-blue-500 hover:text-white font-medium"
           >
             Add to cart
-          </Link>
+          </button>
         </div>
         <div className="text-sm text-gray-500">{footnote}</div>
       </div>
@@ -121,7 +136,7 @@ function ProductDetail() {
 
   return (
     <div className="flex">
-      <ProductDetailCard {...product} />
+      <ProductDetailCard product={product} />
     </div>
   );
 }

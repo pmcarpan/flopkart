@@ -28,3 +28,5 @@ INSERT INTO discount VALUES(3, 3, 15);
 INSERT INTO new_arrival VALUES(1, 1);
 INSERT INTO new_arrival VALUES(2, 5);
 INSERT INTO new_arrival VALUES(3, 6);
+
+INSERT INTO user VALUES(1, "arpan", "password");

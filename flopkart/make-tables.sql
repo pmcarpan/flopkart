@@ -3,6 +3,11 @@ DROP TABLE new_arrival;
 DROP TABLE product;
 DROP TABLE category;
 
+DROP TABLE order_item;
+DROP TABLE order_detail;
+
+DROP TABLE user;
+
 CREATE TABLE category(
     id INTEGER PRIMARY KEY,
     category_name CHAR(128) UNIQUE
@@ -29,5 +34,45 @@ CREATE TABLE discount(
 
 CREATE TABLE new_arrival(
     id INTEGER PRIMARY KEY,
+    product_id INTEGER REFERENCES product(id)
+);
+
+CREATE TABLE user(
+    id INTEGER PRIMARY KEY,
+    user_username CHAR(256),
+    user_password CHAR(256)
+);
+
+CREATE TABLE order_detail(
+    id INTEGER PRIMARY KEY,
+
+    -- Basic shipping info.
+    email_address CHAR(256),
+    mobile_number CHAR(256),
+    first_name CHAR(256),
+    last_name CHAR(256),
+    shipping_address CHAR(256),
+    shipping_city CHAR(256),
+    shipping_state CHAR(256),
+    shipping_country CHAR(256),
+    shipping_zip_code CHAR(256),
+
+    -- Delivery method.
+    delivery_method CHAR(256),
+
+    -- Payment details.
+    card_number CHAR(256),
+    card_cvv CHAR(256),
+    card_expiration CHAR(256),
+    card_first_name CHAR(256),
+    card_last_name CHAR(256),
+    total_cost NUMBER(17, 2),
+
+    user_id INTEGER REFERENCES user(id)
+);
+
+CREATE TABLE order_item(
+    id INTEGER PRIMARY KEY,
+    order_detail_id INTEGER REFERENCES order_detail(id),
     product_id INTEGER REFERENCES product(id)
 );

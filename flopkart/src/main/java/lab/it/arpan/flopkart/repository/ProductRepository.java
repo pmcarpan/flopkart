@@ -16,7 +16,7 @@ import lab.it.arpan.flopkart.utils.ResultSetUtilities;
 public class ProductRepository {
     private final Connection connection;
 
-    private String LIST_PRODUCTS_SQL = 
+    private static String LIST_PRODUCTS_SQL = 
         "SELECT "
             + "product.id, product_name, product_description, category_name, new_arrival.id as new_arrival_id, "
             + "price, discount.id as discount_id, discount_percentage, image_file_url, footnote "
@@ -28,7 +28,7 @@ public class ProductRepository {
         + "LEFT JOIN new_arrival "
         + "ON product.id = new_arrival.product_id;";
 
-    private String RETRIEVE_PRODUCT_SQL = 
+    private static String RETRIEVE_PRODUCT_SQL = 
         "SELECT "
             + "product.id, product_name, product_description, category_name, new_arrival.id as new_arrival_id, "
             + "price, discount.id as discount_id, discount_percentage, image_file_url, footnote "

@@ -1,10 +1,17 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useLocalStorage } from "../localStorage";
+import { useSessionStorage } from "../sessionStorage";
 import SETTINGS from "../settings";
 
 const { useEffect, useState } = React;
 
 function ProductSummaryCard(props) {
+  const [cart, setCart] = useSessionStorage("cart", {
+    addedProductIds: {},
+    products: [],
+  });
+
   const {
     id,
     imageUrl,
@@ -15,7 +22,16 @@ function ProductSummaryCard(props) {
     reducedPrice,
     category,
     footnote,
-  } = props;
+  } = props.product;
+
+  const handleAddToCart = () => {
+    if (!cart.addedProductIds[id]) {
+      const cartCopy = { ...cart };
+      cartCopy.addedProductIds[id] = true;
+      cartCopy.products.push(props.product);
+      setCart(cartCopy);
+    }
+  };
 
   const renderPriceSection = () => {
     if (discountPercentage) {
@@ -89,12 +105,12 @@ function ProductSummaryCard(props) {
           >
             View details
           </Link>
-          <Link
-            to="/"
+          <button
+            onClick={() => handleAddToCart()}
             className="rounded-md p-1 border-2 border-blue-500 hover:bg-blue-500 hover:text-white font-medium"
           >
             Add to cart
-          </Link>
+          </button>
         </div>
         <div className="text-sm text-gray-500">{footnote}</div>
       </div>
@@ -102,17 +118,30 @@ function ProductSummaryCard(props) {
   );
 }
 
-async function fetchProducts(setProducts, searchQuery) {
-  console.log(searchQuery);
-
+async function fetchProducts(
+  setProducts,
+  searchQuery,
+  filterNewArrivalsFlag,
+  filterDiscountedItemsFlag
+) {
   const productsRaw = await fetch(
     `${SETTINGS.BASE_URL}/c/products?action=list`
   );
   const products = await productsRaw.json();
 
-  // TODO: handle queries for [discounted] items and [new] arrivals
+  const filteredProducts = products.filter((product) => {
+    if (filterNewArrivalsFlag && filterDiscountedItemsFlag)
+      return product.isNewArrival && product.discountPercentage;
+
+    if (filterNewArrivalsFlag) return product.isNewArrival;
+
+    if (filterDiscountedItemsFlag) return product.discountPercentage;
+
+    return true;
+  });
+
   if (searchQuery) {
-    const searchMatches = products.filter(
+    const searchMatches = filteredProducts.filter(
       (product) =>
         product.name.toLowerCase().includes(searchQuery) ||
         product.description.toLowerCase().includes(searchQuery) ||
@@ -123,19 +152,51 @@ async function fetchProducts(setProducts, searchQuery) {
     return;
   }
 
-  setProducts(products);
+  setProducts(filteredProducts);
 }
 
 function Products() {
   const [products, setProducts] = useState(null);
+  const [filterNewArrivalsFlag, setFilterNewArrivalsFlag] = useState(false);
+  const [filterDiscountedItemsFlag, setFilterDiscountedItemsFlag] = useState(
+    false
+  );
   const location = useLocation();
   const searchQuery = new URLSearchParams(location.search).get(
     "productSearchQuery"
   );
 
+  const [activity, setActivity] = useLocalStorage("activity", {
+    viewNewArrivalsCount: 0,
+    viewDiscountedItemsCount: 0,
+  });
+
+  const handleNewArrivalsChecked = () => {
+    if (!filterNewArrivalsFlag) {
+      setActivity((curr) => ({
+        ...curr,
+        viewNewArrivalsCount: curr.viewNewArrivalsCount + 1,
+      }));
+    }
+  };
+
+  const handleDiscountedItemsChecked = () => {
+    if (!filterDiscountedItemsFlag) {
+      setActivity((curr) => ({
+        ...curr,
+        viewDiscountedItemsCount: curr.viewDiscountedItemsCount + 1,
+      }));
+    }
+  };
+
   useEffect(() => {
-    fetchProducts(setProducts, searchQuery);
-  }, [searchQuery]);
+    fetchProducts(
+      setProducts,
+      searchQuery,
+      filterNewArrivalsFlag,
+      filterDiscountedItemsFlag
+    );
+  }, [searchQuery, filterNewArrivalsFlag, filterDiscountedItemsFlag]);
 
   if (!products) {
     return <div></div>;
@@ -161,20 +222,47 @@ function Products() {
           <div className="p-2 text-4xl">No products were found.</div>
           <div className="p-2 text-sm font-medium">
             {searchQuery
-              ? "Check your internet or enter another search query."
-              : "Check your internet."}
+              ? "Try another search, remove filters or check your internet."
+              : "Remove filters or check your internet."}
           </div>
         </div>
       );
     }
 
     return products.map((product) => (
-      <ProductSummaryCard key={product.id} {...product} />
+      <ProductSummaryCard key={product.id} product={product} />
     ));
   };
 
   return (
-    <div className="flex">
+    <div className="flex flex-col">
+      <div className="flex p-2 border-b-2">
+        <div className="mr-8 font-bold">Filters</div>
+        <div className="mr-4">
+          <input
+            type="checkbox"
+            className="mr-1"
+            onChange={() => {
+              handleNewArrivalsChecked();
+              setFilterNewArrivalsFlag((val) => !val);
+            }}
+          />
+          <span className=" text-sm font-semibold text-gray-600">
+            New Arrivals
+          </span>
+        </div>
+        <div className="">
+          <input
+            type="checkbox"
+            className="mr-1"
+            onChange={() => {
+              handleDiscountedItemsChecked();
+              setFilterDiscountedItemsFlag((val) => !val);
+            }}
+          />
+          <span className="text-sm font-semibold text-gray-600">Deals</span>
+        </div>
+      </div>
       <div className="flex-1">
         {renderOptionalSearchSection()}
         {renderProductsList()}

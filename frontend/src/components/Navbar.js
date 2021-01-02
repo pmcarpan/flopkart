@@ -4,8 +4,10 @@ import {
   ShoppingCartOutline,
   SearchOutline,
 } from "@graywolfai/react-heroicons";
+import { useAuth } from "../auth";
 
 function Navbar() {
+  const auth = useAuth();
   const history = useHistory();
 
   const handleSearchButtonPress = (event) => {
@@ -21,6 +23,29 @@ function Navbar() {
       form.reset();
       history.push(`/products?productSearchQuery=${searchQuery}`);
     }
+  };
+
+  const renderUserSection = () => {
+    if (auth.user) {
+      return (
+        <div
+          onClick={() => auth.logout()}
+          className="inline font-light text-lg hover:border-b-2 hover:border-red-500 cursor-default hover:cursor-pointer"
+        >
+          Logout
+        </div>
+      );
+    }
+
+    return (
+      <NavLink
+        activeClassName="border-b-2 border-blue-500"
+        className="font-light text-lg hover:border-b-2 hover:border-green-500"
+        to={"/login"}
+      >
+        Login
+      </NavLink>
+    );
   };
 
   return (
@@ -45,36 +70,36 @@ function Navbar() {
           name="searchQueryInputField"
           placeholder="Search for products"
           autoComplete="off"
-          className="flex-grow rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"
+          className="flex-grow rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
         />
-        <button className="rounded-full ml-1 h-9 w-9 bg-blue-200 border-2 border-blue-500 hover:bg-blue-500 hover:text-white">
+        <button className="rounded-full ml-1 h-9 w-9 flex items-center justify-center bg-blue-200 border-2 border-blue-500 hover:bg-blue-500 hover:text-white">
           <SearchOutline className="h-4 w-4 inline" />
         </button>
       </form>
 
       <div className="my-auto">
-        <ul className="flex">
-          <li className="mr-2">
+        <div className="flex">
+          <div className="mr-4">
             <NavLink
               exact
               activeClassName="border-b-2 border-blue-500"
-              className="font-light text-lg mr-4 hover:border-b-2 hover:border-blue-500"
+              className="font-light text-lg hover:border-b-2 hover:border-blue-500"
               to="/"
             >
               Home
             </NavLink>
-          </li>
-          <li className="mr-2">
+          </div>
+          <div className="mr-4">
             <NavLink
               exact
               activeClassName="border-b-2 border-blue-500"
-              className="font-light text-lg mr-4 hover:border-b-2 hover:border-blue-500"
+              className="font-light text-lg hover:border-b-2 hover:border-blue-500"
               to="/products"
             >
               Products
             </NavLink>
-          </li>
-          <li>
+          </div>
+          <div className="mr-4">
             <NavLink
               activeClassName="border-b-2 border-blue-500"
               className="font-light text-lg hover:border-b-2 hover:border-blue-500"
@@ -82,8 +107,10 @@ function Navbar() {
             >
               Cart <ShoppingCartOutline className="h-4 w-4 inline" />
             </NavLink>
-          </li>
-        </ul>
+          </div>
+
+          <div>{renderUserSection()}</div>
+        </div>
       </div>
     </nav>
   );

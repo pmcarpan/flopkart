@@ -1,5 +1,8 @@
 import React from "react";
 import { ChevronDoubleRightOutline } from "@graywolfai/react-heroicons";
+import { useSessionStorage } from "../sessionStorage";
+import { useAuth } from "../auth";
+import { Link } from "react-router-dom";
 
 const { useEffect, useState } = React;
 
@@ -10,11 +13,15 @@ function CartItemRow(props) {
 
   return (
     <div className="table-row">
-      <div className="table-cell text-right px-2">{idx}</div>
+      <div className="table-cell text-right px-2">{idx + 1}</div>
       <div className="table-cell text-right px-2">{id}</div>
       <div className="table-cell text-left px-2">{name}</div>
       <div className="table-cell text-right px-2">
-        ₹ {actualPrice.toLocaleString("en-IN")}
+        ₹{" "}
+        {actualPrice.toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}
       </div>
     </div>
   );
@@ -45,21 +52,25 @@ function calculateTotalCost(products) {
 }
 
 function Cart() {
-  const [productsInCart, setProductsInCart] = useState(null);
+  const [cart, setCart] = useSessionStorage("cart", {
+    addedProductIds: {},
+    products: [],
+  });
   const [totalCost, setTotalCost] = useState(null);
 
   useEffect(() => {
-    if (!productsInCart) {
-      fetchProductsInCart(setProductsInCart);
-    }
+    setTotalCost(calculateTotalCost(cart.products));
+  }, [cart]);
 
-    if (productsInCart) {
-      setTotalCost(calculateTotalCost(productsInCart));
-    }
-  }, [productsInCart]);
-
-  if (!productsInCart || !totalCost) {
-    return <div></div>;
+  if (!cart.products || !totalCost) {
+    return (
+      <div>
+        <div className="p-2 text-4xl">Your cart is empty.</div>
+        <div className="p-2 text-sm font-semibold">
+          Add products to your cart to see them here.
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -78,7 +89,7 @@ function Cart() {
           </div>
         </div>
         <div className="table-row-group text-sm">
-          {productsInCart.map((product, idx) => (
+          {cart.products.map((product, idx) => (
             <CartItemRow key={product.id} idx={idx} {...product} />
           ))}
         </div>
@@ -88,7 +99,11 @@ function Cart() {
             <div className="table-cell text-right px-2 border-t-2"></div>
             <div className="table-cell text-left px-2 border-t-2">Subtotal</div>
             <div className="table-cell text-right px-2 border-t-2">
-              ₹ {totalCost.toLocaleString("en-IN")}
+              ₹{" "}
+              {totalCost.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
             </div>
           </div>
           <div className="table-row font-semibold text-gray-600 text-sm">
@@ -106,20 +121,24 @@ function Cart() {
             <div className="table-cell text-right px-2 border-t-2"></div>
             <div className="table-cell text-left px-2 border-t-2">Total</div>
             <div className="table-cell text-right px-2 border-t-2">
-              ₹ {totalCost.toLocaleString("en-IN")}
+              ₹{" "}
+              {totalCost.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
             </div>
           </div>
         </div>
       </div>
       <div>
         <div className="flex mt-4 mb-4">
-          <a
-            href="/"
-            className="rounded-md p-1 border-2 border-blue-500 bg-blue-200 hover:bg-blue-500 hover:text-white font-medium"
+          <Link
+            to="/checkout"
+            className="rounded-md p-1 flex border-2 border-blue-500 bg-blue-200 hover:bg-blue-500 hover:text-white font-medium"
           >
             Continue and check out{" "}
-            <ChevronDoubleRightOutline className="h-4 w-4 inline" />
-          </a>
+            <ChevronDoubleRightOutline className="h-4 w-4 ml-1 inline self-center" />
+          </Link>
         </div>
       </div>
       <div></div>

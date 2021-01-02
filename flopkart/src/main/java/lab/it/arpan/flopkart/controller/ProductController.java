@@ -15,7 +15,7 @@ import lab.it.arpan.flopkart.model.response.ProductResponse;
 import lab.it.arpan.flopkart.repository.ProductRepository;
 import lab.it.arpan.flopkart.utils.NumberParseUtilities;
 
-@WebServlet(name = "ProductsController", urlPatterns = { "/c/products" })
+@WebServlet(name = "ProductController", urlPatterns = { "/c/products" })
 public class ProductController extends HttpServlet {
     private static final long serialVersionUID = 1L;
 

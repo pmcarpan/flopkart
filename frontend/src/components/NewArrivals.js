@@ -1,11 +1,34 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useSessionStorage } from "../sessionStorage";
 import SETTINGS from "../settings";
 
 const { useEffect, useState } = React;
 
 function NewArrivalCard(props) {
-  const { id, imageUrl, name, price, category, description, footnote } = props;
+  const [cart, setCart] = useSessionStorage("cart", {
+    addedProductIds: {},
+    products: [],
+  });
+
+  const {
+    id,
+    imageUrl,
+    name,
+    price,
+    category,
+    description,
+    footnote,
+  } = props.product;
+
+  const handleAddToCart = () => {
+    if (!cart.addedProductIds[id]) {
+      const cartCopy = { ...cart };
+      cartCopy.addedProductIds[id] = true;
+      cartCopy.products.push(props.product);
+      setCart(cartCopy);
+    }
+  };
 
   return (
     <div className="p-2 bg-white border-r-2 last:border-r-0">
@@ -16,9 +39,9 @@ function NewArrivalCard(props) {
           className="rounded-lg h-60 ml-auto mr-auto"
         />
       </div>
-      <div className="flex justify-between mt-1">
-        <div className="font-semibold text-xl">{name}</div>
-        <div className="text-xl text-gray-500 font-medium">
+      <div className="flex justify-between mt-1 text-lg lg:text-xl">
+        <div className="font-semibold">{name}</div>
+        <div className="text-gray-500 font-medium">
           ₹ {price.toLocaleString("en-IN")}
         </div>
       </div>
@@ -40,12 +63,12 @@ function NewArrivalCard(props) {
         >
           View details
         </Link>
-        <Link
-          to="/"
+        <button
+          onClick={() => handleAddToCart()}
           className="rounded-md p-1 border-2 border-blue-500 hover:bg-blue-500 hover:text-white font-medium"
         >
           Add to cart
-        </Link>
+        </button>
       </div>
       <div className="text-sm text-gray-500">{footnote}</div>
     </div>
@@ -97,7 +120,7 @@ function NewArrivals() {
       <div>
         <div className="flex flex-row justify-evenly">
           {newArrivals.map((newArrival) => (
-            <NewArrivalCard key={newArrival.id} {...newArrival} />
+            <NewArrivalCard key={newArrival.id} product={newArrival} />
           ))}
         </div>
       </div>
