@@ -33,6 +33,8 @@ function useProvideAuth() {
     const payload = JSON.parse(atob(token.split(".")[1]));
 
     setUser({ token: token, payload: payload });
+
+    console.log({ token: token, payload: payload });
   };
 
   const logout = () => {
